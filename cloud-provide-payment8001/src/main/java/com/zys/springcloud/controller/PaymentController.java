@@ -6,17 +6,24 @@ import com.zys.springcloud.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
 public class PaymentController {
 
     @Autowired
-    PaymentService paymentService;
+    private PaymentService paymentService;
 
     @Value("${server.port}")
     private String serverPort;
+
+    @Autowired
+    private DiscoveryClient discoveryClient;
 
     @PostMapping("/payment/create")
     public CommonResult create(@RequestBody Payment payment){
@@ -28,13 +35,32 @@ public class PaymentController {
 
     }
 
-    @GetMapping("payment/get/{id}")
+    @GetMapping("/payment/get/{id}")
     public CommonResult getPaymentById(@PathVariable("id") long id){
+
         log.info("payment/get/{id}获取" + id + "中========");
         Payment result = paymentService.getPaymentById(id);
         if (result != null) return new CommonResult(200,"获取成功！serverPort=" + serverPort,result);
         else return new CommonResult(444,"获取失败！",null);
 
+    }
+
+    @GetMapping("/payment/discovery")
+    public Object discovery(){
+
+        List<String> services = discoveryClient.getServices();
+        for (String service : services) {
+            log.info("service: " + service);
+        }
+
+        List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+        for (ServiceInstance instance : instances) {
+            log.info("ServiceId: " + instance.getServiceId() + "\t" +
+                     "Host：" + instance.getHost() + "\t" +
+                    "Port: " + instance.getPort());
+        }
+
+        return discoveryClient;
     }
 
 }
