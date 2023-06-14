@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zys.springcloud.mapper.PaymentMapper">
+
+    <insert id="create" parameterType="Payment" useGeneratedKeys="true" keyProperty="id">
+        insert into payment (serial) values (#{serial});
+    </insert>
+
+    <resultMap id="paymentMap" type="com.zys.springcloud.entities.Payment">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <id column="serial" property="serial" jdbcType="VARCHAR"></id>
+    </resultMap>
+    <select id="getPaymentById" resultMap="paymentMap">
+        select * from payment where id=#{id};
+    </select>
+
+    <update id="updatePaymentById" parameterType="com.zys.springcloud.entities.Payment" useGeneratedKeys="true"
+            keyProperty="id">
+        update payment set serial=#{serial} where id=#{id}
+    </update>
+
+    <delete id="deletePaymentById">
+        delete payment where id=#{id}
+    </delete>
+
+</mapper>
